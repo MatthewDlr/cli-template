@@ -1,4 +1,4 @@
-# Hypr CLI
+# cli CLI
 
 ## Introduction
 

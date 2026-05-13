@@ -78,7 +78,7 @@ export async function run(args: string[]): Promise<Result<void, string>> {
 }
 ```
 
-**2.** Run `hypr <name>` — it works immediately, no other file to touch.
+**2.** Run `cli <name>` — it works immediately, no other file to touch.
 
 **3.** Write tests in `src/commands/<name>.spec.ts` following the AAA pattern.
 
