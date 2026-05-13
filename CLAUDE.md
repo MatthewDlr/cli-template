@@ -182,11 +182,9 @@ structure example:
 
 ### Command design
 
-Commands must follow the **Open/Closed Principle**: open for extension, closed for modification. The goal is not convenience today, but making it trivially easy to add new functionality tomorrow without touching existing code.
+Commands are kept self-contained and uniform:
 
-In practice this means:
-
-- **Every command exports a single `run` function** with the signature `() => Promise<Result<void, string>>`. This uniform interface is what the dynamic loader expects.
+- **Every command exports a single `run` function** with the signature `(args: string[]) => Promise<Result<void, string>>`. This uniform interface is what the loader expects.
 
 - **Commands are self-contained.** A command file must not import from another command file. Shared logic belongs in `utils/`.
 
@@ -194,9 +192,30 @@ In practice this means:
 
 ### Command convention
 
-Every file in `src/commands/` must export a `run` function matching the `Command` type from `src/types/Command.type.ts`. No registration is needed — the CLI auto-discovers commands by filename.
+Every file in `src/commands/` must export a `run` function matching the `Command` type from `src/types/Command.type.ts`, and must be registered in `src/commands/registry.ts`.
 
-The loader (`src/utils/command-loader.ts`) dynamically imports `src/commands/<name>.ts` at runtime. If the file does not exist the user sees "Unknown command". If the file exists but does not export a valid `run` function, a shape error is shown.
+The registry is a plain object of lazy imports:
+
+```ts
+// src/commands/registry.ts
+import type { CommandRegistry } from "../utils/command-loader";
+
+export const COMMAND_REGISTRY: CommandRegistry = {
+  help: () => import("./help"),
+  version: () => import("./version"),
+};
+```
+
+To add a command:
+
+1. Create `src/commands/<name>.ts` exporting `run` (and optionally `description`).
+2. Add one line to `COMMAND_REGISTRY`: `<name>: () => import("./<name>"),`.
+
+For sub-commands, the parent command file holds its own registry and dispatches via `loadCommand(args[0], SUB_REGISTRY)`. Keep each sub-registry next to the parent (e.g. `BRANCH_REGISTRY` alongside `COMMAND_REGISTRY` in `registry.ts`, or a separate `branch/registry.ts`).
+
+The loader (`src/utils/command-loader.ts`) resolves the registry entry and validates the loaded module's shape. If the name is missing the user sees "Unknown command". If the file exists but does not export a valid `run` function, a shape error is shown.
+
+Why a registry instead of filesystem auto-discovery? Bun's `bun build --compile` step needs every import to be statically visible to the bundler. A central registry of `() => import("./...")` calls satisfies that *and* works identically when running from source.
 
 ### Testing
 

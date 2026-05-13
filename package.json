@@ -15,7 +15,7 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "typecheck": "tsc --noEmit",
-    "build": "bun build --compile --minify --bytecode template-cli",
+    "build": "bun build --compile --minify cli.ts --outfile template-cli",
     "test": "bun test --coverage",
     "check": "bun run fmt:check && bun run lint && bun run typecheck && bun run test"
   },

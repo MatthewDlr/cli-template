@@ -49,9 +49,11 @@ bun run dev
 cli.ts                      # Entry point — reads command name, delegates to src/commands/
 src/
   commands/                 # One file per command (mirrors CLI command structure)
+    registry.ts             # COMMAND_REGISTRY — maps command names to lazy imports
+    help.ts                 # `template-cli help`
     version.ts              # `template-cli version`
   utils/                    # Reusable utilities, one file per feature
-    shell.ts                # Bun $ wrapper returning Result<ShellSuccess, ShellError>
+    shell.ts                # Bun $ wrapper returning Result<string, string>
     shell.spec.ts           # Tests for shell.ts
   mocks/                    # Shared test factories, reusable across spec files
     shell.mock.ts           # mockShellSuccess / mockShellFailure factories
@@ -64,9 +66,12 @@ src/
 ```ts
 import { ok, type Result } from "neverthrow";
 
+export const description = "Short summary shown in `help` output";
+
 /**
  * Runs the `<name>` command.
  *
+ * @param args - Remaining argv after the executable and command name.
  * @returns Ok on success, Err with an error message on failure.
  */
 export async function run(args: string[]): Promise<Result<void, string>> {
@@ -78,9 +83,21 @@ export async function run(args: string[]): Promise<Result<void, string>> {
 }
 ```
 
-**2.** Run `cli <name>` — it works immediately, no other file to touch.
+**2.** Register it in `src/commands/registry.ts`:
 
-**3.** Write tests in `src/commands/<name>.spec.ts` following the AAA pattern.
+```ts
+export const COMMAND_REGISTRY: CommandRegistry = {
+  help: () => import("./help"),
+  version: () => import("./version"),
+  <name>: () => import("./<name>"),
+};
+```
+
+**3.** Run `cli <name>` — it works immediately.
+
+**4.** Write tests in `src/commands/<name>.spec.ts` following the AAA pattern.
+
+> The registry is a single, explicit map of lazy imports. It exists so the same code works in dev (`bun cli.ts`) and in the compiled binary (`bun build --compile`), where the bundler must see every import statically.
 
 ## Key Conventions
 
@@ -104,5 +121,5 @@ bun run build
 Produces a single self-contained binary (no Bun runtime required on the target machine). To rename the output binary, update the `build` script in `package.json`:
 
 ```json
-"build": "bun build --compile --minify --bytecode your-cli-name"
+"build": "bun build --compile --minify cli.ts --outfile your-cli-name"
 ```

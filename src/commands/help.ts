@@ -1,5 +1,6 @@
 import { ok, type Result } from "neverthrow";
 import { logNote } from "../utils/logger";
+import { COMMAND_REGISTRY } from "./registry";
 
 type CommandEntry = { name: string; description?: string };
 
@@ -50,8 +51,7 @@ export const description = "List all available commands";
  * @returns Ok on success.
  */
 export async function run(): Promise<Result<void, string>> {
-  const registry = import.meta.glob("./*.ts");
-  const commands = await listCommands(registry);
+  const commands = await listCommands(COMMAND_REGISTRY);
   logNote(formatCommands(commands), "Available commands");
   return ok(undefined);
 }
