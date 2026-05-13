@@ -1,0 +1,241 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "node"],
+  "ignorePatterns": ["dist/**", "node_modules/**", "*.config.js"],
+  "options": {
+    "typeAware": true,
+    "typeCheck": true,
+    "maxWarnings": 10,
+  },
+  "categories": {
+    "correctness": "deny",
+  },
+  "rules": {
+    // ── Repository-specific ────────────────────────────────────────────────────
+    // Rules that enforce conventions specific to this project.
+
+    "no-console": "deny",
+    "no-throw-literal": "deny",
+    "no-restricted-imports": [
+      "deny",
+      {
+        "paths": [
+          {
+            "name": "bun",
+            "importNames": ["$"],
+            "message": "Do not import $ from bun directly. Use runCommand or runShellCommands from src/utils/shell.ts instead.",
+          },
+          {
+            "name": "@clack/prompts",
+            "importNames": ["spinner", "intro", "outro", "log"],
+            "message": "Do not import Clack primitives directly. Use the helpers from src/utils/logger.ts instead.",
+          },
+        ],
+      },
+    ],
+
+    // ── General ────────────────────────────────────────────────────────────────
+
+    "no-unused-expressions": [
+      "deny",
+      {
+        "allowShortCircuit": true,
+        "allowTernary": true,
+      },
+    ],
+
+    // ── Node ───────────────────────────────────────────────────────────────────
+
+    "node/no-path-concat": "deny",
+
+    // ── Unicorn ────────────────────────────────────────────────────────────────
+
+    "unicorn/prefer-node-protocol": "deny",
+    "unicorn/no-process-exit": "deny",
+    "unicorn/prefer-ternary": "deny",
+
+    // ── OXC ────────────────────────────────────────────────────────────────────
+
+    "oxc/bad-char-at-comparison": "deny",
+    "oxc/bad-object-literal-comparison": "deny",
+    "oxc/bad-replace-all-arg": "deny",
+    "oxc/const-comparisons": "deny",
+    "oxc/double-comparisons": "deny",
+    "oxc/erasing-op": "deny",
+    "oxc/missing-throw": "deny",
+    "oxc/no-barrel-file": "deny",
+    "oxc/no-const-enum": "deny",
+    "oxc/number-arg-out-of-range": "deny",
+    "oxc/only-used-in-recursion": "deny",
+    "oxc/uninvoked-array-callback": "deny",
+
+    // ── TypeScript (Type Aware) ─────────────────────────────────────────────────────────────
+
+    "typescript/adjacent-overload-signatures": "deny",
+    "typescript/await-thenable": "deny",
+    "typescript/class-literal-property-style": "deny",
+    "typescript/consistent-generic-constructors": "deny",
+    "typescript/consistent-indexed-object-style": ["deny", "record"],
+    "typescript/consistent-type-assertions": [
+      "deny",
+      {
+        "assertionStyle": "never",
+      },
+    ],
+    "typescript/consistent-type-definitions": ["deny", "type"],
+    "typescript/consistent-type-exports": [
+      "deny",
+      {
+        "fixMixedExportsWithInlineTypeSpecifier": true,
+      },
+    ],
+    "typescript/consistent-type-imports": [
+      "deny",
+      {
+        "fixStyle": "inline-type-imports",
+      },
+    ],
+    "typescript/dot-notation": "deny",
+    "typescript/explicit-function-return-type": ["off"],
+    "typescript/explicit-module-boundary-types": [
+      "deny",
+      {
+        "allowHigherOrderFunctions": false,
+      },
+    ],
+    "typescript/no-deprecated": "deny",
+    "typescript/no-duplicate-enum-values": "deny",
+    "typescript/no-duplicate-type-constituents": "deny",
+    "typescript/no-explicit-any": [
+      "deny",
+      {
+        "fixToUnknown": true,
+      },
+    ],
+    "typescript/no-extra-non-null-assertion": "deny",
+    "typescript/no-floating-promises": "deny",
+    "typescript/no-for-in-array": "deny",
+    "typescript/no-implied-eval": "deny",
+    "typescript/no-invalid-void-type": "deny",
+    "typescript/no-meaningless-void-operator": "deny",
+    "typescript/no-misused-new": "deny",
+    "typescript/no-misused-spread": "deny",
+    "typescript/no-non-null-asserted-optional-chain": "deny",
+    "typescript/no-redundant-type-constituents": "deny",
+    "typescript/no-this-alias": "deny",
+    "typescript/no-unnecessary-boolean-literal-compare": "deny",
+    "typescript/no-unnecessary-condition": "deny",
+    "typescript/no-unnecessary-qualifier": "deny",
+    "typescript/no-unnecessary-type-arguments": "deny",
+    "typescript/no-unnecessary-type-assertion": "deny",
+    "typescript/no-unnecessary-type-constraint": "deny",
+    "typescript/no-unsafe-declaration-merging": "deny",
+    "typescript/no-useless-default-assignment": "deny",
+    "typescript/no-useless-empty-export": "deny",
+    "typescript/no-wrapper-object-types": "deny",
+    "typescript/prefer-as-const": "deny",
+    "typescript/prefer-function-type": "deny",
+
+    // ── JSDoc ──────────────────────────────────────────────────────────────────
+
+    "jsdoc/check-access": "deny",
+    "jsdoc/check-property-names": "deny",
+    "jsdoc/check-tag-names": [
+      "deny",
+      {
+        "definedTags": [
+          "abstract",
+          "alpha",
+          "author",
+          "beta",
+          "category",
+          "class",
+          "defaultValue",
+          "deprecated",
+          "document",
+          "enum",
+          "event",
+          "eventProperty",
+          "example",
+          "expand",
+          "experimental",
+          "function",
+          "group",
+          "hidden",
+          "hideconstructor",
+          "ignore",
+          "import",
+          "include",
+          "inheritDoc",
+          "inline",
+          "interface",
+          "internal",
+          "label",
+          "license",
+          "link",
+          "mergeModuleWith",
+          "module",
+          "namespace",
+          "overload",
+          "override",
+          "packageDocumentation",
+          "param",
+          "primaryExport",
+          "private",
+          "privateRemarks",
+          "property",
+          "protected",
+          "public",
+          "readonly",
+          "remarks",
+          "returns",
+          "sealed",
+          "see",
+          "since",
+          "sortStrategy",
+          "summary",
+          "template",
+          "throws",
+          "typeParam",
+          "useDeclaredType",
+          "virtual",
+        ],
+        "typed": true,
+      },
+    ],
+    "jsdoc/empty-tags": "deny",
+    "jsdoc/implements-on-classes": "deny",
+    "jsdoc/no-defaults": [
+      "deny",
+      {
+        "noOptionalParamNames": true,
+      },
+    ],
+    "jsdoc/require-param-description": "deny",
+    "jsdoc/require-property-description": "deny",
+    "jsdoc/require-property-name": "deny",
+    "jsdoc/require-returns": "deny",
+    "jsdoc/require-returns-description": "deny",
+    "jsdoc/require-yields": "deny",
+  },
+  "overrides": [
+    {
+      "files": ["**/*.spec.ts"],
+      "rules": {
+        "typescript/no-explicit-any": "off",
+        "typescript/explicit-module-boundary-types": "off",
+        "jsdoc/require-returns": "off",
+        "jsdoc/require-returns-description": "off",
+      },
+    },
+    {
+      "files": ["src/utils/shell.ts", "src/utils/logger.ts", "src/types/**"],
+      "rules": {
+        "no-restricted-imports": "off",
+      },
+    },
+  ],
+  "env": {
+    "builtin": true,
+  },
+}

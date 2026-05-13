@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": ["dist/**", "node_modules/**", "*.config.js"],
+  "arrowParens": "always",
+  "printWidth": 120,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "semi": true,
+  "tabWidth": 2
+}
