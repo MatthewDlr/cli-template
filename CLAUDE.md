@@ -215,7 +215,7 @@ For sub-commands, the parent command file holds its own registry and dispatches 
 
 The loader (`src/utils/command-loader.ts`) resolves the registry entry and validates the loaded module's shape. If the name is missing the user sees "Unknown command". If the file exists but does not export a valid `run` function, a shape error is shown.
 
-Why a registry instead of filesystem auto-discovery? Bun's `bun build --compile` step needs every import to be statically visible to the bundler. A central registry of `() => import("./...")` calls satisfies that *and* works identically when running from source.
+Why a registry instead of filesystem auto-discovery? Bun's `bun build --compile` step needs every import to be statically visible to the bundler. A central registry of `() => import("./...")` calls satisfies that _and_ works identically when running from source.
 
 ### Testing
 
