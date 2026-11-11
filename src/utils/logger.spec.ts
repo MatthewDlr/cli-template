@@ -35,16 +35,6 @@ void mock.module("@clack/prompts", () => ({
   tasks: mockTasks,
 }));
 
-void mock.module("picocolors", () => ({
-  default: {
-    bgCyanBright: (s: string) => `cyan:${s}`,
-    bgYellowBright: (s: string) => `yellow:${s}`,
-    bgGreenBright: (s: string) => `green:${s}`,
-    bgRedBright: (s: string) => `red:${s}`,
-    black: (s: string) => s,
-  },
-}));
-
 let runCommandImpl: (command: ShellCommand) => Promise<CommandResult> = async () => ok("");
 const mockRunCommand = mock(async (command: ShellCommand) => runCommandImpl(command));
 
