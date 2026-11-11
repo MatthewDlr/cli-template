@@ -10,9 +10,9 @@ This project is a CLI tool that makes developers' lives easier. It is also the t
 | ---------- | ------------------------------- | ---------------------------------------------------- |
 | Runtime    | Bun 1.4                         | Package manager, test runner, bundler, shell         |
 | Language   | TypeScript 7 via `tsrs`         | Native-speed type checking (`bun typecheck`)         |
+| Routing    | `@bomb.sh/router`               | Typed intents, validation, help and version          |
 | Errors     | `neverthrow`                    | `Result<T, E>` everywhere; no `throw`                |
 | Prompts    | `@clack/prompts`                | Interactive input, spinners, notes                   |
-| Terminal   | `picocolors` + `terminal-link`  | Colors and clickable links                           |
 | Validation | `zod`                           | Runtime schema validation                            |
 | Linter     | Oxlint 1.93 + `oxlint-tsgolint` | Type-aware rules, agent reporter                     |
 | Formatter  | Oxfmt 0.78                      | 100 columns, sorted imports, sorted scripts          |
@@ -24,7 +24,7 @@ The first step is to understand the command surface before writing code. For sma
 
 ### 1. Plan
 
-State the command(s) being added or changed, the exact `run(args)` contract, the `Result` error messages, and which module owns each behavior. For anything touching several commands, include the file tree you intend to create. The user approves the plan before implementation starts.
+State the route(s) being added or changed, the validated model each handler receives, the `Result` error messages, and which module owns each behavior. For anything touching several routes, include the route tree you intend to create. The user approves the plan before implementation starts.
 
 ### 2. Implement
 
@@ -68,9 +68,9 @@ Rules every agent must follow at all times.
 
 **Naming**: a name says _what_ it does, never _how_. No comments should be needed to understand what a function does.
 
-- Functions: `formatCommands`, `loadCommand`, `runShellCommands`, not `handleStuff` or `doLoaderLogic`.
-- Types: `ShellCommand`, `CommandRegistry`, not `Thing` or `Data`.
-- Files mirror the command: `src/commands/new.ts` routes `new`, `src/commands/new/project.ts` runs `new project`.
+- Functions: `formatGreeting`, `runShellCommands`, `printErrors`, not `handleStuff` or `doLoaderLogic`.
+- Types: `GreetModel`, `ShellCommand`, not `Thing` or `Data`.
+- Files mirror the route: `src/commands/new.ts` handles `/new`, `src/commands/new/project.ts` handles `/new/project`.
 
 **Implementation should be at the leaves (Open/Closed)**: identify what is likely to change, the _how_, and push it as far down the call graph as possible behind one seam. Everything above that seam survives the change untouched. If an implementation changes while behavior stays the same, the tests still pass.
 
@@ -87,7 +87,7 @@ import { runCommand } from "@/utils/shell.ts"; // crosses directories
 ```
 
 ```ts
-import { isCommand } from "./command-loader.ts"; // same directory
+import { app } from "./router.ts"; // same directory
 ```
 
 - `@/*` maps to `./src/*`.
@@ -99,27 +99,48 @@ import { isCommand } from "./command-loader.ts"; // same directory
 
 For advanced types, load the `/typescript` skill.
 
-### Argument parsing
+### Routing
 
-Each command receives its arguments as `args: string[]`. `cli.ts` strips the executable and the command name before calling `run`. Parse that slice directly:
+Routes live in `src/router.ts`. Define the tree once with `command()`, `route()`, `name()`, `description()`, `version()`, and the parameter builders `option()`, `toggle()`, and `argument()`. Validate values with Zod through `schema()`:
 
 ```ts
-import { parseArgs } from "node:util";
+import { command, description, name, option, schema, toggle, version } from "@bomb.sh/router";
+import * as z from "zod";
 
-const { values, positionals } = parseArgs({
-  args,
-  options: {
-    force: { type: "boolean" },
-    name: { type: "string" },
-  },
-  strict: true,
-  allowPositionals: true,
-});
+import { version as packageVersion } from "../package.json";
+
+export const app = command(
+  name("template-cli"),
+  description("A CLI tool to supercharge developer experience"),
+  version(packageVersion),
+  command(
+    name("greet"),
+    description("Print a greeting"),
+    option(name("name"), schema(z.string().default("world"))),
+    toggle(name("shout")),
+  ),
+);
 ```
 
-For subcommands, dispatch on `args[0]` and pass `args.slice(1)` to the subcommand's `run()`.
+`parse()` returns a typed intent. `cli.ts` is the only place that reads `Bun.argv` and the only place that prints router output:
 
-Docs: <https://bun.com/docs/guides/process/argv#parse-command-line-arguments>
+```ts
+const result = parse(app, { argv: Bun.argv.slice(2) });
+
+if (!result.ok) {
+  cancel(printErrors(result));
+  process.exit(1);
+}
+
+if (result.method === "help") return writeText(printHelp(result));
+if (result.method === "version") return writeText(printVersion(result));
+
+// Dispatch on result.route and call the matching handler. See cli.ts.
+```
+
+Handlers never inspect `argv` and never parse flags. Route IDs exclude the root name, and options belong to the route that declares them. Use `argument()` for positionals, `multiple()` for repeated values, and `env()` when an option should read a specific environment variable. Do not import `parseArgs` from `node:util`.
+
+Docs: <https://bomb.sh/docs/router/>
 
 ### Shell
 
@@ -146,7 +167,7 @@ A `ShellCommand` requires `name` (display label and map key) and `command` (stri
 
 ### Logging
 
-Never print raw command output. All terminal feedback goes through `src/utils/logger.ts`. Never import `spinner`, `intro`, `outro`, or `log` from `@clack/prompts` in a command; if the output you need does not exist yet, add a reusable helper to `logger.ts`.
+Never print raw command output. All terminal feedback goes through `src/utils/logger.ts`. Never import `spinner`, `intro`, `outro`, or `log` from `@clack/prompts` in a command; if the output you need does not exist yet, add a reusable helper to `logger.ts`. Use `writeText()` for generated plain output such as help and version, and `logNote()` for information boxes.
 
 Sections:
 
@@ -174,40 +195,30 @@ Reserve spinners for operations that genuinely take time. A spinner that flashes
 
 ### Commands
 
-Every file in `src/commands/` exports a single `run` function matching the `Command` type in `src/types/Command.type.ts`:
+Each executable route has a handler in `src/commands/<name>.ts`:
 
 ```ts
-(args: string[]) => Promise<Result<void, string>>;
+export async function run(model: GreetModel): Promise<Result<void, string>>;
 ```
 
-and is registered in `src/commands/registry.ts`:
-
-```ts
-import type { CommandRegistry } from "@/utils/command-loader.ts";
-
-export const COMMAND_REGISTRY: CommandRegistry = {
-  help: () => import("./help.ts"),
-  version: () => import("./version.ts"),
-};
-```
-
+- **Typed model:** the parameter is the validated model for that route. Do not accept `args: string[]`.
 - **Self-contained:** a command never imports another command. Shared logic belongs in `utils/`.
-- **Subcommands:** the parent command (`new.ts`) owns its sub-registry and dispatches through `loadCommand(args[0], SUB_REGISTRY)`. The top-level router does not need to know about subcommands.
-- **Registry over discovery:** `bun build --compile` needs every import to be statically visible. A central map of `() => import("./...")` satisfies that and behaves identically from source.
-- The loader validates the module shape. A missing name yields "Unknown command"; a bad shape yields a shape error.
+- **Subcommands:** add child routes under the parent in `src/router.ts` and add their cases to the dispatch in `cli.ts`. Nested routes are still addressed by their full route ID (`/repo/clone`).
+- **No registry:** the route tree is the single source of truth. `cli.ts` imports every handler statically, so `bun build --compile` keeps them.
 
 To add a command:
 
-1. Create `src/commands/<name>.ts` exporting `run` and, optionally, `description`.
-2. Add one line to `COMMAND_REGISTRY`.
-3. Add `src/commands/<name>.spec.ts` if the command has behavior worth testing.
-4. Run `bun run dev <name>`.
+1. Declare the route in `src/router.ts` with its options, toggles, or arguments.
+2. Create `src/commands/<name>.ts` exporting `run(model)`.
+3. Add the handler import and a `case "/<name>"` in `cli.ts`.
+4. Add `src/commands/<name>.spec.ts` for the behavior worth pinning down.
+5. Run `bun run dev <name>`.
 
 ### Testing
 
 Tests are a contract on observable behavior, not a mirror of the implementation.
 
-- Drive the public surface: `run()`, `loadCommand()`, `listCommands()`, the logger helpers. Do not test private helpers directly.
+- Drive the public surface: `parse(app, { argv })` for intents and models, handler functions and their pure helpers, the logger helpers. Do not test private helpers directly.
 - Assert outcomes: `Result` values and error messages, map contents, exit behavior, rendered text.
 - One behavior per test. If the title needs "and", split it.
 - Place the spec next to the file it covers (`<name>.spec.ts`). A file does not need a spec just because it exports something; add one when there is behavior to pin down.
@@ -216,7 +227,7 @@ Tests are a contract on observable behavior, not a mirror of the implementation.
 - Group tests with `describe(fn, ...)`; Bun infers the block title from `fn.name`.
 - Inside a block, order tests: happy path, error cases, edge cases.
 - Follow AAA (Arrange, Act, Assert) with visible comments.
-- Mock external boundaries (`@clack/prompts`, shell execution) through reusable factories in `src/mocks/`. Tests must not depend on the network or on machine state.
+- Mock external boundaries (`@clack/prompts`, shell execution) through reusable factories in `src/mocks/` when several specs share them. Tests must not depend on the network or on machine state.
 
 ```ts
 import { describe, expect, test } from "bun:test";
@@ -239,21 +250,18 @@ describe(runCommand, () => {
 
 ## Project structure
 
-`utils/` is the reusable tier; `commands/` is the entry-point tier.
+`router.ts` declares the surface, `commands/` holds handlers, and `utils/` is the reusable tier.
 
 ```text
-cli.ts                      # Entry point: resolves the command, delegates to src/commands/
+cli.ts                      # Entry point: parses argv, dispatches on method and route
 src/
-  commands/                 # One file per command, mirrors the CLI surface
-    registry.ts             # COMMAND_REGISTRY: lazy imports
-    help.ts
-    version.ts
+  router.ts                 # Route tree: commands, options, toggles, version
+  commands/                 # One handler per executable route
+    greet.ts                # Handler for /greet
   utils/                    # Reusable, command-agnostic logic
     shell.ts                # Bun $ wrapper returning Result<string, string>
     logger.ts               # Clack wrappers and section helpers
-    command-loader.ts       # Registry resolution and shape validation
   types/                    # Shared types, one file per type
-  mocks/                    # Reusable test factories
 ```
 
 `utils/` files are imported by commands and by each other, never executed directly by the CLI. One file per feature, named after the behavior it owns.
