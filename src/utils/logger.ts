@@ -3,9 +3,9 @@ import type { Result } from "neverthrow";
 import { intro, log, note, outro, spinner, tasks } from "@clack/prompts";
 import pc from "picocolors";
 
-import type { ShellCommand } from "../types/ShellCommand.type";
+import type { ShellCommand } from "@/types/ShellCommand.type.ts";
 
-import { runCommand, type CommandResult } from "./shell";
+import { runCommand, type CommandResult } from "./shell.ts";
 
 /**
  * Displays a bordered note box. Use for multi-line informational output

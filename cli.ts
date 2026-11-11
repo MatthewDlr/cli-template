@@ -2,9 +2,9 @@
 
 import { cancel } from "@clack/prompts";
 
-import { COMMAND_REGISTRY } from "./src/commands/registry.ts";
-import { loadCommand } from "./src/utils/command-loader.ts";
-import { endSectionError, endSectionSuccess } from "./src/utils/logger.ts";
+import { COMMAND_REGISTRY } from "@/commands/registry.ts";
+import { loadCommand } from "@/utils/command-loader.ts";
+import { endSectionError, endSectionSuccess } from "@/utils/logger.ts";
 
 async function main(): Promise<void> {
   const command = Bun.argv[2];

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
-import { mockCommandSuccess } from "../mocks/command.mock.ts";
+import { mockCommandSuccess } from "@/mocks/command.mock.ts";
+
 import { isCommand, loadCommand, type CommandRegistry } from "./command-loader.ts";
 
 describe(isCommand, () => {

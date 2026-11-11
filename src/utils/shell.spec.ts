@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { ok, err } from "neverthrow";
 
-import type { ShellCommand } from "../types/ShellCommand.type.ts";
+import type { ShellCommand } from "@/types/ShellCommand.type.ts";
 
 import { runCommand, runShellCommands } from "./shell.ts";
 

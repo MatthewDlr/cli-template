@@ -1,6 +1,6 @@
 import { err, ok, type Result } from "neverthrow";
 
-import type { Command } from "../types/Command.type";
+import type { Command } from "@/types/Command.type.ts";
 
 /**
  * A map of module paths or command names to lazy-import functions.

@@ -1,6 +1,6 @@
 import { ok, err } from "neverthrow";
 
-import type { CommandResult } from "../utils/shell.ts";
+import type { CommandResult } from "@/utils/shell.ts";
 
 /**
  * Creates a mock Ok CommandResult for a successful shell command.

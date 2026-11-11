@@ -1,7 +1,8 @@
 import { ok, type Result } from "neverthrow";
 
-import { logNote } from "../utils/logger";
-import { COMMAND_REGISTRY } from "./registry";
+import { logNote } from "@/utils/logger.ts";
+
+import { COMMAND_REGISTRY } from "./registry.ts";
 
 type CommandEntry = { name: string; description?: string };
 

@@ -1,7 +1,8 @@
 import { describe, expect, mock, test } from "bun:test";
 import { ok, err } from "neverthrow";
 
-import type { ShellCommand } from "../types/ShellCommand.type.ts";
+import type { ShellCommand } from "@/types/ShellCommand.type.ts";
+
 import type { CommandResult } from "./shell.ts";
 
 const mockStart = mock((_msg: string) => {});

@@ -1,7 +1,8 @@
 import { ok, type Result } from "neverthrow";
 
+import { withSpinner } from "@/utils/logger.ts";
+
 import { version } from "../../package.json";
-import { withSpinner } from "../utils/logger";
 
 /**
  * Runs the `version` command, printing the current CLI version.

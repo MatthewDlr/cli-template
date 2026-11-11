@@ -1,6 +1,6 @@
 import { err, ok } from "neverthrow";
 
-import type { Command } from "../types/Command.type";
+import type { Command } from "@/types/Command.type.ts";
 
 /**
  * Creates a mock Command whose `run` resolves to Ok.

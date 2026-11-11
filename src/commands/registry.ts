@@ -1,4 +1,4 @@
-import type { CommandRegistry } from "../utils/command-loader";
+import type { CommandRegistry } from "@/utils/command-loader.ts";
 
 /**
  * Top-level command registry. Each entry maps a command name to a lazy
@@ -7,6 +7,6 @@ import type { CommandRegistry } from "../utils/command-loader";
  * Add a new command here when you create `src/commands/<name>.ts`.
  */
 export const COMMAND_REGISTRY: CommandRegistry = {
-  help: () => import("./help"),
-  version: () => import("./version"),
+  help: () => import("./help.ts"),
+  version: () => import("./version.ts"),
 };
