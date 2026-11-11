@@ -1,11 +1,15 @@
 import { describe, expect, test } from "bun:test";
+
 import { formatCommands, listCommands } from "./help.ts";
 
 describe(listCommands, () => {
   test("returns command entries with names derived from registry paths", async () => {
     // Arrange
     const registry = {
-      "./version.ts": async () => ({ run: async () => {}, description: "Print the current version" }),
+      "./version.ts": async () => ({
+        run: async () => {},
+        description: "Print the current version",
+      }),
       "./build.ts": async () => ({ run: async () => {} }),
     };
 
@@ -14,8 +18,8 @@ describe(listCommands, () => {
 
     // Assert
     expect(result).toHaveLength(2);
-    expect(result.find((c) => c.name === "version")?.description).toBe("Print the current version");
-    expect(result.find((c) => c.name === "build")?.description).toBeUndefined();
+    expect(result.find(c => c.name === "version")?.description).toBe("Print the current version");
+    expect(result.find(c => c.name === "build")?.description).toBeUndefined();
   });
 
   test("excludes help from the list", async () => {
@@ -29,7 +33,7 @@ describe(listCommands, () => {
     const result = await listCommands(registry);
 
     // Assert
-    expect(result.find((c) => c.name === "help")).toBeUndefined();
+    expect(result.find(c => c.name === "help")).toBeUndefined();
     expect(result).toHaveLength(1);
   });
 
@@ -45,7 +49,7 @@ describe(listCommands, () => {
     const result = await listCommands(registry);
 
     // Assert
-    expect(result.map((c) => c.name)).toEqual(["apple", "mango", "zebra"]);
+    expect(result.map(c => c.name)).toEqual(["apple", "mango", "zebra"]);
   });
 
   test("returns an empty array when the registry is empty", async () => {
@@ -59,7 +63,10 @@ describe(listCommands, () => {
   test("handles path-keyed entries from import.meta.glob", async () => {
     // Arrange — simulate the glob output format
     const registry = {
-      "./src/commands/version.ts": async () => ({ run: async () => {}, description: "Print version" }),
+      "./src/commands/version.ts": async () => ({
+        run: async () => {},
+        description: "Print version",
+      }),
     };
 
     // Act

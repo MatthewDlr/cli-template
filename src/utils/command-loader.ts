@@ -1,4 +1,5 @@
 import { err, ok, type Result } from "neverthrow";
+
 import type { Command } from "../types/Command.type";
 
 /**
@@ -33,8 +34,11 @@ export function isCommand(mod: unknown): mod is Command {
  * @param registry - Map of paths or names to lazy-import functions.
  * @returns Ok with the loaded Command, or Err with a human-readable message.
  */
-export async function loadCommand(name: string, registry: CommandRegistry): Promise<Result<Command, string>> {
-  const key = Object.keys(registry).find((k) => k === name || k.endsWith(`/${name}.ts`));
+export async function loadCommand(
+  name: string,
+  registry: CommandRegistry,
+): Promise<Result<Command, string>> {
+  const key = Object.keys(registry).find(k => k === name || k.endsWith(`/${name}.ts`));
   const loader = key !== undefined ? registry[key] : undefined;
 
   if (!loader) {
@@ -50,7 +54,9 @@ export async function loadCommand(name: string, registry: CommandRegistry): Prom
   }
 
   if (!isCommand(mod)) {
-    return err(`Command "${name}" does not export a valid run function. Check src/commands/${name}.ts.`);
+    return err(
+      `Command "${name}" does not export a valid run function. Check src/commands/${name}.ts.`,
+    );
   }
 
   return ok(mod);

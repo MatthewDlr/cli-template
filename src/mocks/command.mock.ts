@@ -1,4 +1,5 @@
 import { err, ok } from "neverthrow";
+
 import type { Command } from "../types/Command.type";
 
 /**

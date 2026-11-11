@@ -1,4 +1,5 @@
 import { ok, type Result } from "neverthrow";
+
 import { version } from "../../package.json";
 import { withSpinner } from "../utils/logger";
 

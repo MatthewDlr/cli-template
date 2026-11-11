@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from "bun:test";
 import { ok, err } from "neverthrow";
+
 import type { ShellCommand } from "../types/ShellCommand.type.ts";
 import type { CommandResult } from "./shell.ts";
 
@@ -50,8 +51,16 @@ void mock.module("./shell.ts", () => ({
   runCommand: mockRunCommand,
 }));
 
-const { withSpinner, withLog, withTask, startSection, dangerSection, endSectionSuccess, endSectionError, logNote } =
-  await import("./logger.ts");
+const {
+  withSpinner,
+  withLog,
+  withTask,
+  startSection,
+  dangerSection,
+  endSectionSuccess,
+  endSectionError,
+  logNote,
+} = await import("./logger.ts");
 
 describe(withSpinner, () => {
   test("starts spinner with loadingMessage and stops with successMessage on Ok", async () => {
@@ -134,7 +143,7 @@ describe(withLog, () => {
 describe(withTask, () => {
   test("runs all commands and returns complete results map when all succeed", async () => {
     // Arrange
-    runCommandImpl = async (cmd) => ok(`output-${cmd.name}`);
+    runCommandImpl = async cmd => ok(`output-${cmd.name}`);
     const commands: ShellCommand[] = [
       { name: "cmd1", command: ["echo", "1"] },
       { name: "cmd2", command: ["echo", "2"] },
@@ -168,7 +177,7 @@ describe(withTask, () => {
 
   test("stops after first failing command", async () => {
     // Arrange
-    runCommandImpl = async (cmd) => (cmd.name === "fail" ? err("error") : ok("output"));
+    runCommandImpl = async cmd => (cmd.name === "fail" ? err("error") : ok("output"));
     const commands: ShellCommand[] = [
       { name: "fail", command: ["false"] },
       { name: "after", command: ["echo", "should not run"] },

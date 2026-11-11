@@ -1,7 +1,10 @@
-import { intro, log, note, outro, spinner, tasks } from "@clack/prompts";
 import type { Result } from "neverthrow";
+
+import { intro, log, note, outro, spinner, tasks } from "@clack/prompts";
 import pc from "picocolors";
+
 import type { ShellCommand } from "../types/ShellCommand.type";
+
 import { runCommand, type CommandResult } from "./shell";
 
 /**
@@ -105,7 +108,7 @@ export async function withTask(commands: ShellCommand[]): Promise<Map<string, Co
 
   try {
     await tasks(
-      commands.map((command) => ({
+      commands.map(command => ({
         title: command.name,
         task: async () => {
           const result = await runCommand(command);

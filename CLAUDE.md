@@ -228,6 +228,7 @@ Group tests by function using `describe`. Pass the function itself as the first 
 
 ```ts
 import { describe, test, expect } from "bun:test";
+
 import { myFunction } from "./myFile.ts";
 
 describe(myFunction, () => {

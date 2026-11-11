@@ -1,5 +1,6 @@
 import { $ } from "bun";
 import { err, ok, type Result } from "neverthrow";
+
 import type { ShellCommand } from "../types/ShellCommand.type";
 import type { ShellCommandsOptions } from "../types/ShellCommandsOptions.type";
 

@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { ok, err } from "neverthrow";
+
 import type { ShellCommand } from "../types/ShellCommand.type.ts";
+
 import { runCommand, runShellCommands } from "./shell.ts";
 
 describe(runCommand, () => {
@@ -77,7 +79,10 @@ describe(runCommand, () => {
 
   test("returns Err when command does not exist", async () => {
     // Arrange
-    const command: ShellCommand = { name: "nonexistent", command: ["this-command-definitely-does-not-exist-xyz123"] };
+    const command: ShellCommand = {
+      name: "nonexistent",
+      command: ["this-command-definitely-does-not-exist-xyz123"],
+    };
 
     // Act
     const result = await runCommand(command);

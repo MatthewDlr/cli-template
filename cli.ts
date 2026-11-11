@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 
 import { cancel } from "@clack/prompts";
+
 import { COMMAND_REGISTRY } from "./src/commands/registry.ts";
 import { loadCommand } from "./src/utils/command-loader.ts";
 import { endSectionError, endSectionSuccess } from "./src/utils/logger.ts";
