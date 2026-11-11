@@ -31,6 +31,18 @@ export default defineConfig({
               "Do not import $ from bun directly. Use runCommand or runShellCommands from src/utils/shell.ts instead.",
           },
           {
+            name: "node:util",
+            importNames: ["parseArgs"],
+            message:
+              "Do not parse argv manually. Declare the route in src/router.ts so @bomb.sh/router validates the model.",
+          },
+          {
+            name: "util",
+            importNames: ["parseArgs"],
+            message:
+              "Do not parse argv manually. Declare the route in src/router.ts so @bomb.sh/router validates the model.",
+          },
+          {
             name: "@clack/prompts",
             importNames: ["spinner", "intro", "outro", "log"],
             message:
