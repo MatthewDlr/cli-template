@@ -1,10 +1,28 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": ["dist/**", "node_modules/**", "*.config.js"],
-  "arrowParens": "always",
-  "printWidth": 120,
-  "singleQuote": false,
-  "trailingComma": "all",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
   "semi": true,
-  "tabWidth": 2
+  "singleQuote": false,
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "bracketSameLine": false,
+  "trailingComma": "all",
+  "ignorePatterns": ["node_modules", "dist", "out", "coverage", "graphify-out"],
+  "sortImports": {
+    "groups": [
+      "type-import",
+      ["value-builtin", "value-external"],
+      "type-internal",
+      "value-internal",
+      ["type-parent", "type-sibling", "type-index"],
+      ["value-parent", "value-sibling", "value-index"],
+      "unknown"
+    ]
+  },
+  "newlinesBetween": true,
+  "sortPackageJson": {
+    "sortScripts": true
+  }
 }

@@ -1,4 +1,5 @@
 import { ok, type Result } from "neverthrow";
+
 import { logNote } from "../utils/logger";
 import { COMMAND_REGISTRY } from "./registry";
 
@@ -17,7 +18,9 @@ function hasDescription(mod: unknown): mod is { description: string } {
  * @param registry - Map of file paths to lazy-import functions.
  * @returns Sorted array of command entries.
  */
-export async function listCommands(registry: Record<string, () => Promise<unknown>>): Promise<CommandEntry[]> {
+export async function listCommands(
+  registry: Record<string, () => Promise<unknown>>,
+): Promise<CommandEntry[]> {
   const entries = await Promise.all(
     Object.entries(registry).map(async ([path, loader]) => {
       const name = path.replace(/^.*\//, "").replace(/\.ts$/, "");
@@ -26,7 +29,9 @@ export async function listCommands(registry: Record<string, () => Promise<unknow
     }),
   );
 
-  return entries.filter((entry) => entry.name !== "help").sort((a, b) => a.name.localeCompare(b.name));
+  return entries
+    .filter(entry => entry.name !== "help")
+    .toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
 /**
@@ -37,9 +42,11 @@ export async function listCommands(registry: Record<string, () => Promise<unknow
  */
 export function formatCommands(commands: CommandEntry[]): string {
   if (commands.length === 0) return "(no commands found)";
-  const maxLen = Math.max(...commands.map((c) => c.name.length));
+  const maxLen = Math.max(...commands.map(c => c.name.length));
   return commands
-    .map(({ name, description }) => (description ? `${name.padEnd(maxLen + 2)}${description}` : name))
+    .map(({ name, description }) =>
+      description ? `${name.padEnd(maxLen + 2)}${description}` : name,
+    )
     .join("\n");
 }
 
