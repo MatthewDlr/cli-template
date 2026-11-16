@@ -1,8 +1,11 @@
-import { intro, log, note, outro, spinner, tasks } from "@clack/prompts";
 import type { Result } from "neverthrow";
-import pc from "picocolors";
-import type { ShellCommand } from "../types/ShellCommand.type";
-import { runCommand, type CommandResult } from "./shell";
+
+import { intro, log, note, outro, spinner, tasks } from "@clack/prompts";
+import { styleText } from "node:util";
+
+import type { ShellCommand } from "@/types/ShellCommand.type.ts";
+
+import { runCommand, type CommandResult } from "./shell.ts";
 
 /**
  * Displays a bordered note box. Use for multi-line informational output
@@ -16,31 +19,41 @@ export function logNote(content: string, title?: string): void {
 }
 
 /**
+ * Writes plain text to stdout. Use for generated output such as help and
+ * version text, where a Clack prefix or box would add noise.
+ *
+ * @param text - Text to print. A trailing newline is added when missing.
+ */
+export function writeText(text: string): void {
+  process.stdout.write(text.endsWith("\n") ? text : `${text}\n`);
+}
+
+/**
  * Displays a cyan intro banner. Use for standard command sections.
  */
 export function startSection(label: string): void {
-  intro(pc.bgCyanBright(` ${label} `));
+  intro(styleText("bgCyanBright", ` ${label} `, { stream: process.stdout }));
 }
 
 /**
  * Displays a yellow intro banner. Use for destructive or dangerous actions.
  */
 export function dangerSection(label: string): void {
-  intro(pc.bgYellowBright(` ${label} `));
+  intro(styleText("bgYellowBright", ` ${label} `, { stream: process.stdout }));
 }
 
 /**
  * Displays a green outro banner signaling successful completion.
  */
 export function endSectionSuccess(label: string): void {
-  outro(pc.bgGreenBright(` ${label} `));
+  outro(styleText("bgGreenBright", ` ${label} `, { stream: process.stdout }));
 }
 
 /**
  * Displays a red outro banner signaling failed completion.
  */
 export function endSectionError(label: string): void {
-  outro(pc.bgRedBright(` ${label} `));
+  outro(styleText("bgRedBright", ` ${label} `, { stream: process.stdout }));
 }
 
 /**
@@ -105,7 +118,7 @@ export async function withTask(commands: ShellCommand[]): Promise<Map<string, Co
 
   try {
     await tasks(
-      commands.map((command) => ({
+      commands.map(command => ({
         title: command.name,
         task: async () => {
           const result = await runCommand(command);

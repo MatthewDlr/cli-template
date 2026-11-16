@@ -1,35 +1,57 @@
 #!/usr/bin/env bun
 
+import { parse, printErrors, printHelp, printVersion } from "@bomb.sh/router";
 import { cancel } from "@clack/prompts";
-import { COMMAND_REGISTRY } from "./src/commands/registry.ts";
-import { loadCommand } from "./src/utils/command-loader.ts";
-import { endSectionError, endSectionSuccess } from "./src/utils/logger.ts";
+
+import { run as greet } from "@/commands/greet.ts";
+import { app } from "@/router.ts";
+import { endSectionError, endSectionSuccess, writeText } from "@/utils/logger.ts";
+
+/**
+ * Prints the root help text by parsing the built-in help flag.
+ */
+function showHelp(): void {
+  const result = parse(app, { argv: ["--help"] });
+  if (result.ok && result.method === "help") {
+    writeText(printHelp(result));
+  }
+}
 
 async function main(): Promise<void> {
-  const command = Bun.argv[2];
+  const result = parse(app, { argv: Bun.argv.slice(2) });
 
-  if (!command) {
-    cancel("No command provided. Run `help` for usage.");
-    process.exit(1);
-  }
-
-  const loaded = await loadCommand(command, COMMAND_REGISTRY);
-
-  if (loaded.isErr()) {
-    cancel(loaded.error);
+  if (!result.ok) {
+    cancel(printErrors(result));
     endSectionError("Failed");
     process.exit(1);
   }
 
-  const result = await loaded.value.run(Bun.argv.slice(3));
-
-  if (result.isErr()) {
-    cancel(result.error);
-    endSectionError("Failed");
-    process.exit(1);
+  if (result.method === "help") {
+    writeText(printHelp(result));
+    return;
   }
 
-  endSectionSuccess("Done");
+  if (result.method === "version") {
+    writeText(printVersion(result));
+    return;
+  }
+
+  switch (result.route) {
+    case "/":
+      showHelp();
+      return;
+
+    case "/greet": {
+      const outcome = await greet(result.model);
+      if (outcome.isErr()) {
+        cancel(outcome.error);
+        endSectionError("Failed");
+        process.exit(1);
+      }
+      endSectionSuccess("Done");
+      return;
+    }
+  }
 }
 
 main().catch((error: unknown) => {
