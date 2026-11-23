@@ -1,6 +1,8 @@
 import { describe, expect, mock, test } from "bun:test";
 import { ok, err } from "neverthrow";
-import type { ShellCommand } from "../types/ShellCommand.type.ts";
+
+import type { ShellCommand } from "@/types/ShellCommand.type.ts";
+
 import type { CommandResult } from "./shell.ts";
 
 const mockStart = mock((_msg: string) => {});
@@ -33,16 +35,6 @@ void mock.module("@clack/prompts", () => ({
   tasks: mockTasks,
 }));
 
-void mock.module("picocolors", () => ({
-  default: {
-    bgCyanBright: (s: string) => `cyan:${s}`,
-    bgYellowBright: (s: string) => `yellow:${s}`,
-    bgGreenBright: (s: string) => `green:${s}`,
-    bgRedBright: (s: string) => `red:${s}`,
-    black: (s: string) => s,
-  },
-}));
-
 let runCommandImpl: (command: ShellCommand) => Promise<CommandResult> = async () => ok("");
 const mockRunCommand = mock(async (command: ShellCommand) => runCommandImpl(command));
 
@@ -50,8 +42,16 @@ void mock.module("./shell.ts", () => ({
   runCommand: mockRunCommand,
 }));
 
-const { withSpinner, withLog, withTask, startSection, dangerSection, endSectionSuccess, endSectionError, logNote } =
-  await import("./logger.ts");
+const {
+  withSpinner,
+  withLog,
+  withTask,
+  startSection,
+  dangerSection,
+  endSectionSuccess,
+  endSectionError,
+  logNote,
+} = await import("./logger.ts");
 
 describe(withSpinner, () => {
   test("starts spinner with loadingMessage and stops with successMessage on Ok", async () => {
@@ -134,7 +134,7 @@ describe(withLog, () => {
 describe(withTask, () => {
   test("runs all commands and returns complete results map when all succeed", async () => {
     // Arrange
-    runCommandImpl = async (cmd) => ok(`output-${cmd.name}`);
+    runCommandImpl = async cmd => ok(`output-${cmd.name}`);
     const commands: ShellCommand[] = [
       { name: "cmd1", command: ["echo", "1"] },
       { name: "cmd2", command: ["echo", "2"] },
@@ -168,7 +168,7 @@ describe(withTask, () => {
 
   test("stops after first failing command", async () => {
     // Arrange
-    runCommandImpl = async (cmd) => (cmd.name === "fail" ? err("error") : ok("output"));
+    runCommandImpl = async cmd => (cmd.name === "fail" ? err("error") : ok("output"));
     const commands: ShellCommand[] = [
       { name: "fail", command: ["false"] },
       { name: "after", command: ["echo", "should not run"] },

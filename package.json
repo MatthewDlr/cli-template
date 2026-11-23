@@ -7,34 +7,32 @@
     "cli": "./cli.ts"
   },
   "type": "module",
-  "module": "index.ts",
   "scripts": {
+    "build": "bun build --compile --minify cli.ts --outfile template-cli",
+    "check": "bun run fmt:check && bun run lint:ci && bun run test",
     "dev": "bun --watch cli.ts",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "typecheck": "tsc --noEmit",
-    "build": "bun build --compile --minify cli.ts --outfile template-cli",
-    "test": "bun test --coverage",
-    "check": "bun run fmt:check && bun run lint && bun run typecheck && bun run test"
+    "lint": "oxlint",
+    "lint:agent": "oxlint --deny-warnings --format=agent",
+    "lint:ci": "oxlint --quiet",
+    "lint:fix": "oxlint --fix --fix-suggestions",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage",
+    "test:watch": "bun test --watch",
+    "typecheck": "tsrs --noEmit --fast"
   },
   "dependencies": {
-    "@clack/prompts": "^1.3.0",
-    "eslint-plugin-neverthrow": "^1.1.4",
+    "@bomb.sh/router": "^0.8.0",
+    "@clack/prompts": "^1.9.0",
     "neverthrow": "^8.2.0",
-    "picocolors": "^1.1.1",
-    "terminal-link": "^5.0.0",
-    "zod": "^4.4.2"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/bun": "^1.3.13",
-    "@typescript/native-preview": "^7.0.0-dev.20260429.1",
-    "oxfmt": "^0.47.0",
-    "oxlint": "^1.62.0",
-    "oxlint-tsgolint": "^0.22.1"
-  },
-  "peerDependencies": {
-    "typescript": "^6.0.3"
+    "@types/bun": "^1.4.4",
+    "oxfmt": "^0.78.0",
+    "oxlint": "^1.93.0",
+    "oxlint-tsgolint": "^7.0.2005",
+    "tsrs": "^0.24.0-ts7.1.0-beta"
   }
 }

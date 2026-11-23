@@ -1,29 +1,34 @@
 {
   "compilerOptions": {
-    // Environment setup & latest features
-    "lib": ["ESNext"],
-    "target": "ESNext",
-    "module": "Preserve",
-    "moduleDetection": "force",
-    "allowJs": true,
-    "types": ["bun"],
-
-    // Bundler mode
+    /* Base options */
+    "target": "ES2024", // ECMAScript target version
+    "lib": ["ESNext"], // Libraries to include when type-checking.
+    "module": "Preserve", // Let Bun choose the output strategy.
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
+    "moduleDetection": "force", // Treat every file as a module.
+    "types": ["bun"],
+    "allowImportingTsExtensions": true, // `./x.ts` imports are valid in Bun.
 
-    // Best practices
+    /* Strictness */
     "strict": true,
-    "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true, // Issue an error whenever a variable is inferred as any.
+    "noUncheckedIndexedAccess": true, // Check array and record access before using it.
     "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
 
-    // Some stricter flags (disabled by default)
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noPropertyAccessFromIndexSignature": false
-  }
+    /* Module interop */
+    "verbatimModuleSyntax": true, // Force `import type` for type-only imports.
+    "resolveJsonModule": true, // Allow importing package.json.
+
+    /* Build behavior */
+    "noEmit": true,
+    "incremental": true,
+    "skipLibCheck": true,
+
+    /* Project integration */
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["cli.ts", "src/**/*.ts"]
 }
